@@ -79,10 +79,50 @@
         .section-title { display: flex; align-items: baseline; gap: 12px; font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: var(--paper-dim); margin-bottom: 22px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
         .section-num { color: var(--cyan); font-weight: 600; }
         .form-group { position: relative; margin-bottom: 24px; }
-        .tooltip-toggle { display: none; }
-        .info-icon { display: inline-flex; align-items: center; justify-content: center; width: 15px; height: 15px; border-radius: 50%; border: 1px solid var(--cyan); color: var(--cyan); font-family: var(--font-mono); font-size: 10px; font-style: normal; cursor: pointer; user-select: none; margin-left: 4px; vertical-align: middle; }
-        .tooltip-content { display: none; position: absolute; background-color: var(--navy-light); border: 1px solid var(--line-strong); color: #DCE9F3; padding: 10px 14px; border-radius: 6px; font-size: 12.5px; line-height: 1.5; margin-top: 6px; max-width: 280px; z-index: 100; left: 0; }
-        .tooltip-toggle:checked ~ .tooltip-content { display: block; }
+        
+        /* ============================================================
+           TOOLTIP STYLING – JavaScript controlled
+        ============================================================ */
+        .info-icon { 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            width: 15px; 
+            height: 15px; 
+            border-radius: 50%; 
+            border: 1px solid var(--cyan); 
+            color: var(--cyan); 
+            font-family: var(--font-mono); 
+            font-size: 10px; 
+            font-style: normal; 
+            cursor: pointer; 
+            user-select: none; 
+            margin-left: 4px; 
+            vertical-align: middle;
+            transition: background 0.2s;
+        }
+        .info-icon:hover {
+            background: var(--cyan-dim);
+        }
+        .tooltip-content {
+            display: none;
+            position: absolute;
+            background-color: var(--navy-light);
+            border: 1px solid var(--line-strong);
+            color: #DCE9F3;
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 12.5px;
+            line-height: 1.5;
+            margin-top: 6px;
+            max-width: 320px;
+            z-index: 100;
+            left: 0;
+        }
+        .tooltip-content.active {
+            display: block;
+        }
+        
         label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: var(--paper); }
         input[type="text"], input[type="email"], input[type="number"], select {
             width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.04); border: 1px solid var(--line-strong); border-radius: 8px;
@@ -141,6 +181,18 @@
             font-weight: 600;
         }
         .disclaimer-title .box-icon { color: var(--amber); }
+        .warning-box {
+            background: var(--amber-dim);
+            border-left: 3px solid var(--amber);
+            padding: 10px 14px;
+            margin: 12px 0;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #D9E4EE;
+        }
+        .warning-box strong {
+            color: var(--amber);
+        }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
@@ -171,14 +223,19 @@
 
                     <div class="form-group">
                         <label for="property-type">Κατάσταση Ακινήτου <span class="required">*</span>
-                            <sup><label for="info-property-type" class="info-icon" tabindex="0">i</label></sup>
+                            <sup><label class="info-icon" data-target="info-property-type" tabindex="0">i</label></sup>
                         </label>
-                        <input type="checkbox" id="info-property-type" class="tooltip-toggle" />
-                        <span class="tooltip-content">Κλειστή: κατοικία κενή για 3+ έτη. Ανοικτή: κύρια κατοικία.</span>
+                        <div id="info-property-type" class="tooltip-content">
+                            <strong>Κλειστή κατοικία:</strong> παρέμεινε αχρησιμοποίητη τα έτη 2024-2025 (θα διατεθεί για ιδιοκατοίκηση ή μακροχρόνια μίσθωση).<br>
+                            <strong>Ανοικτή (κύρια κατοικία/ιδιοκατοίκηση):</strong> ήδη χρησιμοποιείται ως κύρια κατοικία.<br><br>
+                            ⚠️ <strong>Δεν είναι επιλέξιμες:</strong><br>
+                            • Κατοικίες που είναι ήδη μισθωμένες.<br>
+                            • Καταστήματα και επαγγελματικοί χώροι.
+                        </div>
                         <select id="property-type" name="property-type" required>
                             <option value="">-- Επιλέξτε --</option>
-                            <option value="closed">Κλειστή (κενή για 3+ έτη)</option>
-                            <option value="open">Ανοικτή (κύρια κατοικία)</option>
+                            <option value="closed">Κλειστή κατοικία (κενή για 3+ έτη)</option>
+                            <option value="open">Ανοικτή (κύρια κατοικία/ιδιοκατοίκηση)</option>
                         </select>
                     </div>
 
@@ -189,17 +246,16 @@
                         </div>
                         <div class="form-group">
                             <label for="property-year">Έτος Αδείας <span class="required">*</span></label>
-                            <input type="number" id="property-year" name="property-year" min="1900" max="2010" required placeholder="π.χ. 1985">
+                            <input type="number" id="property-year" name="property-year" min="1900" max="1990" required placeholder="π.χ. 1985">
                         </div>
                     </div>
 
                     <div class="two-columns">
                         <div class="form-group">
                             <label for="energy-class">Ενεργειακή Κλάση <span class="required">*</span>
-                                <sup><label for="info-energy" class="info-icon" tabindex="0">i</label></sup>
+                                <sup><label class="info-icon" data-target="info-energy" tabindex="0">i</label></sup>
                             </label>
-                            <input type="checkbox" id="info-energy" class="tooltip-toggle" />
-                            <span class="tooltip-content">Βάσει του Πιστοποιητικού Ενεργειακής Απόδοσης (ΠΕΑ). Αν δεν έχετε, επιλέξτε "Χωρίς ΠΕΑ".</span>
+                            <div id="info-energy" class="tooltip-content">Βάσει του Πιστοποιητικού Ενεργειακής Απόδοσης (ΠΕΑ).</div>
                             <select id="energy-class" name="energy-class" required>
                                 <option value="">-- Επιλέξτε --</option>
                                 <option value="A">Α</option>
@@ -210,11 +266,7 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="legality">Νομιμότητα Κατασκευής <span class="required">*</span>
-                                <sup><label for="info-legality" class="info-icon" tabindex="0">i</label></sup>
-                            </label>
-                            <input type="checkbox" id="info-legality" class="tooltip-toggle" />
-                            <span class="tooltip-content">Απαιτούνται τακτοποιημένες αυθαιρεσίες (ν. 4495/2017).</span>
+                            <label for="legality">Νομιμότητα Κατασκευής <span class="required">*</span></label>
                             <select id="legality" name="legality" required>
                                 <option value="">-- Επιλέξτε --</option>
                                 <option value="legal">Χωρίς αυθαιρεσίες</option>
@@ -249,14 +301,13 @@
 
                     <div class="form-group">
                         <label for="marital-status">Οικογενειακή Κατάσταση <span class="required">*</span>
-                            <sup><label for="info-marital" class="info-icon" tabindex="0">i</label></sup>
+                            <sup><label class="info-icon" data-target="info-marital" tabindex="0">i</label></sup>
                         </label>
-                        <input type="checkbox" id="info-marital" class="tooltip-toggle" />
-                        <span class="tooltip-content">Το Σύμφωνο Συμβίωσης (ΜΣΣ) εξισώνεται με τον γάμο για τα φορολογικά κριτήρια.</span>
+                        <div id="info-marital" class="tooltip-content">Το Σύμφωνο Συμβίωσης (ΜΣΣ) εξισώνεται με τον γάμο για τα φορολογικά κριτήρια.</div>
                         <select id="marital-status" name="marital-status" required onchange="toggleChildrenField()">
                             <option value="">-- Επιλέξτε --</option>
                             <option value="single">Άγαμος/η (μονοπρόσωπο)</option>
-                            <option value="married">Έγγαμος/ΜΣΣ</option>
+                            <option value="married">Έγγαμος/Με Σύμφωνο Συμβίωσης (ΜΣΣ)</option>
                             <option value="single-parent">Μονογονεϊκή οικογένεια</option>
                         </select>
                     </div>
@@ -287,10 +338,9 @@
 
                     <div class="form-group">
                         <label for="property-value">Αντικειμενική Αξία Ακίνητης Περιουσίας (€) <span class="required">*</span>
-                            <sup><label for="info-property-value" class="info-icon" tabindex="0">i</label></sup>
+                            <sup><label class="info-icon" data-target="info-property-value" tabindex="0">i</label></sup>
                         </label>
-                        <input type="checkbox" id="info-property-value" class="tooltip-toggle" />
-                        <span class="tooltip-content">Μπορείτε να το βρείτε στο Ε9 σας ή στον λογαριασμό σας στο Taxisnet, στην καρτέλα "Ακίνητη Περιουσία".</span>
+                        <div id="info-property-value" class="tooltip-content">Μπορείτε να το βρείτε στο Ε9 σας ή στον λογαριασμό σας στο Taxisnet, στην καρτέλα "Ακίνητη Περιουσία".</div>
                         <input type="number" id="property-value" name="property-value" min="0" required placeholder="π.χ. 150000">
                     </div>
                 </div>
@@ -333,7 +383,7 @@
                     <div class="disclaimer-title">
                         <span class="box-icon">⚠️</span> Σημαντική Σημείωση
                     </div>
-                    <p><strong>Η εφαρμογή είναι ενδεικτική και βασίζεται σε δημόσια διαθέσιμα κριτήρια.</strong></p>
+                    <p><strong>Η εφαρμογή είναι ενδεικτική και βασίζεται στα δημοσιευμένα ως σήμερα στοιχεία.</strong></p>
                     <p>Για την <strong>επίσημη</strong> αίτηση, θα χρειαστεί να μπείτε στο <strong>gov.gr</strong> με τους κωδικούς σας (Taxisnet).</p>
                     <p>Τα κριτήρια μπορεί να αλλάξουν με νέες υπουργικές αποφάσεις. Πάντα να ελέγχετε την επίσημη πηγή.</p>
                 </div>
@@ -346,7 +396,46 @@
 
 <script>
     // =============================================================
-    // ΔΙΟΡΘΩΜΕΝΗ ΛΟΓΙΚΗ – ΒΑΣΙΣΜΕΝΗ ΣΤΑ ΕΠΙΣΗΜΑ ΚΡΙΤΗΡΙΑ
+    // ΛΕΙΤΟΥΡΓΙΑ: ΚΛΕΙΣΙΜΟ TOOLTIP ΜΕ ΚΛΙΚ ΟΠΟΥΔΗΠΟΤΕ
+    // =============================================================
+    document.addEventListener('DOMContentLoaded', function() {
+        const infoIcons = document.querySelectorAll('.info-icon');
+        const tooltips = document.querySelectorAll('.tooltip-content');
+
+        infoIcons.forEach(function(icon) {
+            icon.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const targetId = this.getAttribute('data-target');
+                const targetTooltip = document.getElementById(targetId);
+                if (targetTooltip) {
+                    tooltips.forEach(function(t) {
+                        if (t.id !== targetId) {
+                            t.classList.remove('active');
+                        }
+                    });
+                    targetTooltip.classList.toggle('active');
+                }
+            });
+        });
+
+        document.addEventListener('click', function(e) {
+            const isInside = e.target.closest('.tooltip-content') || e.target.closest('.info-icon');
+            if (!isInside) {
+                tooltips.forEach(function(t) {
+                    t.classList.remove('active');
+                });
+            }
+        });
+
+        tooltips.forEach(function(t) {
+            t.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        });
+    });
+
+    // =============================================================
+    // ΥΠΟΛΟΙΠΗ ΛΟΓΙΚΗ ΕΦΑΡΜΟΓΗΣ (ΕΛΕΓΧΟΣ ΕΠΙΛΕΞΙΜΟΤΗΤΑΣ)
     // =============================================================
 
     function toggleChildrenField() {
@@ -387,35 +476,44 @@
             alert('Παρακαλώ εισάγετε έγκυρο email.');
             return;
         }
-        if (isNaN(propertyArea) || propertyArea <= 0 || isNaN(propertyYear) || propertyYear < 1900 || propertyYear > 2010) {
-            alert('Παρακαλώ εισάγετε έγκυρη επιφάνεια (1-200) και έτος αδείας (1900-2010).');
+        if (isNaN(propertyArea) || propertyArea <= 0 || isNaN(propertyYear) || propertyYear < 1900 || propertyYear > 1990) {
+            alert('Παρακαλώ εισάγετε έγκυρη επιφάνεια (1-200) και έτος αδείας (1900-1990).');
             return;
         }
 
         // 3. Λίστα αποκλεισμών & προειδοποιήσεων
         let reasons = [];
+        let warnings = [];
         let isEligible = true;
         let needsPea = false;
 
-        // Έτος αδείας
-        if (propertyYear > 2010) {
+        // Έτος αδείας (σωστό: έως 31/12/1990)[reference:1]
+        if (propertyYear > 1990) {
             isEligible = false;
-            reasons.push('Η κατοικία πρέπει να έχει άδεια κατασκευής πριν την 01/01/2010.');
+            reasons.push('Η κατοικία πρέπει να έχει οικοδομική άδεια έως 31/12/1990.');
         }
 
-        // Νομιμότητα
+        // Νομιμότητα – προειδοποίηση, όχι απόρριψη
         if (legality === 'unsettled') {
-            isEligible = false;
-            reasons.push('Οι αυθαιρεσίες πρέπει να είναι τακτοποιημένες (ν. 4495/2017).');
+            warnings.push('Το ακίνητο έχει μη τακτοποιημένες αυθαιρεσίες. Απαιτείται τακτοποίηση πριν την υποβολή της αίτησης.');
+        } else if (legality === 'unknown') {
+            warnings.push('Δεν γνωρίζετε αν υπάρχουν αυθαιρεσίες. Συνιστάται έλεγχος από μηχανικό.');
         }
 
-        // Ενεργειακή κλάση – απαιτείται ΠΕΑ (οποιαδήποτε κλάση)
+        // Ενεργειακή κλάση – πρέπει να είναι έως Γ[reference:2]
         if (energyClass === 'none') {
             needsPea = true;
+            warnings.push('Απαιτείται η έκδοση Πιστοποιητικού Ενεργειακής Απόδοσης (ΠΕΑ) πριν την υποβολή.');
+        } else if (energyClass === 'A' || energyClass === 'B') {
+            isEligible = false;
+            reasons.push(`Η ενεργειακή κλάση (${energyClass}) είναι υψηλότερη από Γ. Το πρόγραμμα απαιτεί κατοικία σε ενεργειακή κατηγορία έως Γ.`);
         }
 
-        // Όριο επιφάνειας (100 τ.μ. για όλους)
-        const maxArea = 100;
+        // Όριο επιφάνειας: 120 τ.μ. (150 για τρίτεκνους/πολύτεκνους)[reference:3]
+        let maxArea = 120;
+        if (childrenCount >= 3) {
+            maxArea = 150;
+        }
         if (propertyArea > maxArea) {
             isEligible = false;
             reasons.push(`Η επιφάνεια (${propertyArea} τ.μ.) υπερβαίνει το όριο των ${maxArea} τ.μ.`);
@@ -433,7 +531,7 @@
             reasons.push(`Η αντικειμενική αξία της περιουσίας σας (€${propertyValue.toLocaleString('el')}) υπερβαίνει το όριο των €300.000.`);
         }
 
-        // Εισοδηματικά όρια – Πίνακας 1ης και 2ης κατηγορίας
+        // Εισοδηματικά όρια – βάσει ΦΕΚ[reference:4]
         let incomeLimit1 = 0, incomeLimit2 = 0;
         if (maritalStatus === 'single') {
             incomeLimit1 = 18000;
@@ -466,28 +564,25 @@
             }
         }
 
-        // Έλεγχος εισοδήματος
         if (income > incomeLimit2) {
             isEligible = false;
             reasons.push(`Το εισόδημα (€${income.toLocaleString('el')}) υπερβαίνει το ανώτατο όριο των €${incomeLimit2.toLocaleString('el')}.`);
         }
 
-        // Υπολογισμός ποσοστού επιδότησης
+        // Υπολογισμός ποσοστού επιδότησης – βάσει ΦΕΚ[reference:5]
         let subsidyPercentage = 0;
-        let incomeCategory = 0; // 0=μη επιλέξιμο, 1=1η κατηγορία, 2=2η κατηγορία
+        let incomeCategory = 0;
         if (income <= incomeLimit1) {
-            subsidyPercentage = 70;
+            subsidyPercentage = 80; // Κατηγορία Ι: 80%
             incomeCategory = 1;
         } else if (income <= incomeLimit2) {
-            subsidyPercentage = 50;
+            subsidyPercentage = 70; // Κατηγορία ΙΙ: 70%
             incomeCategory = 2;
-        } else {
-            subsidyPercentage = 0;
         }
 
-        // Προσαυξήσεις (μόνο αν είναι επιλέξιμος έως τώρα)
         let bonusDetails = [];
         if (isEligible && incomeCategory > 0) {
+            // Προσαυξήσεις 5%[reference:6]
             if (hasDisabled === 'yes') {
                 subsidyPercentage += 5;
                 bonusDetails.push('+5% για ΑμεΑ');
@@ -498,17 +593,18 @@
             }
             if (childrenCount >= 3) {
                 subsidyPercentage += 5;
-                bonusDetails.push('+5% για 3+ τέκνα');
+                bonusDetails.push('+5% για τρίτεκνη/πολύτεκνη οικογένεια');
             }
             if (location === 'island' || location === 'mountain') {
                 subsidyPercentage += 5;
                 bonusDetails.push('+5% για νησιωτική/ορεινή περιοχή');
             }
-            // Εξασφαλίζουμε μέγιστο 95%
-            if (subsidyPercentage > 95) subsidyPercentage = 95;
+            // Μέγιστα όρια: 95% για Κατηγορία Ι, 85% για Κατηγορία ΙΙ[reference:7]
+            const maxBonus = incomeCategory === 1 ? 95 : 85;
+            if (subsidyPercentage > maxBonus) subsidyPercentage = maxBonus;
         }
 
-        // Υπολογισμός ποσού επιδότησης
+        // Υπολογισμός ποσού επιδότησης: έως 300€/τ.μ. και 36.000€[reference:8]
         const maxSubsidyBase = Math.min(propertyArea * 300, 36000);
         const estimatedSubsidy = Math.round(maxSubsidyBase * subsidyPercentage / 100);
 
@@ -549,17 +645,26 @@
             <p><strong>Περιοχή:</strong> ${reportData.regionText}</p>
         `;
 
+        // Δημιουργία HTML για προειδοποιήσεις
+        let warningHtml = '';
+        if (warnings.length > 0) {
+            warningHtml = `<div class="warning-box"><strong>⚠️ Προσοχή:</strong> ${warnings.join(' ')}</div>`;
+        }
+
         if (isEligible && incomeCategory > 0) {
             resultContainer.className = 'result eligible';
             const title = needsPea ? 'Είστε επιλέξιμος/η (υπό προϋπόθεση ΠΕΑ)' : 'Είστε επιλέξιμος/η!';
             const mainText = needsPea
                 ? 'Συγχαρητήρια! Είστε επιλέξιμος/η, αλλά απαιτείται η έκδοση Πιστοποιητικού Ενεργειακής Απόδοσης (ΠΕΑ) πριν την υποβολή.'
                 : 'Συγχαρητήρια! Φαίνεστε επιλέξιμος/η για το πρόγραμμα «Ανακαίνιση Κατοικίας».';
+            
             const bonusHtml = bonusDetails.length > 0 ? `<p><strong>Προσαυξήσεις:</strong> ${bonusDetails.join(', ')}</p>` : '';
-            const categoryText = incomeCategory === 1 ? '1η εισοδηματική κατηγορία' : '2η εισοδηματική κατηγορία';
+            const categoryText = incomeCategory === 1 ? '1η εισοδηματική κατηγορία (80% βασική επιδότηση)' : '2η εισοδηματική κατηγορία (70% βασική επιδότηση)';
+            
             message = `
                 <h3><span class="result-icon"></span>${title}</h3>
                 <p>${mainText}</p>
+                ${warningHtml}
                 <p><strong>Εισοδηματική Κατηγορία:</strong> ${categoryText}</p>
                 ${bonusHtml}
                 <div class="subsidy-highlight">
@@ -577,6 +682,7 @@
                 <h3><span class="result-icon"></span>Δεν είστε επιλέξιμος/η</h3>
                 <p>Δυστυχώς, δεν πληρείτε τα κριτήρια. Λόγοι:</p>
                 <ul>${reasons.map(r => `<li>${r}</li>`).join('')}</ul>
+                ${warningHtml}
                 <hr>${reportHtml}
             `;
         }
@@ -584,34 +690,8 @@
         resultContainer.innerHTML = message;
         resultContainer.style.display = 'block';
         resultContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-        // (προαιρετική αποθήκευση σε Google Sheet)
-        const dataToSave = {
-            timestamp: new Date().toISOString(),
-            email,
-            region: reportData.regionText,
-            propertyType: reportData.propertyTypeText,
-            propertyArea,
-            propertyYear,
-            energyClass: reportData.energyClassText,
-            legality: reportData.legalityText,
-            ownershipPercent,
-            propertyValue,
-            maritalStatus: reportData.maritalStatusText,
-            childrenCount,
-            hasDisabled: reportData.hasDisabledText,
-            location: reportData.locationText,
-            annualIncome: income,
-            isEligible: isEligible && incomeCategory > 0,
-            subsidyAmount: (isEligible && incomeCategory > 0) ? estimatedSubsidy : 0,
-            subsidyPercentage: (isEligible && incomeCategory > 0) ? subsidyPercentage : 0,
-            reasons,
-            needsPea
-        };
-        // saveResultToSheet(dataToSave);
     }
 
-    // Εκκίνηση – κρύβουμε το πεδίο τέκνων αν δεν χρειάζεται
     document.addEventListener('DOMContentLoaded', function() {
         toggleChildrenField();
     });
